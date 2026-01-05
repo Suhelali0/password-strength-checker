@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>SecurePass | Strength Checker</title>
+</head>
+<body>
+    <div class="container">
+        <h1>ShieldPass</h1>
+        <div class="input-group">
+            <input type="text" id="password" placeholder="Enter password..." oninput="checkStrength()">
+            <button onclick="copyPass()">Copy</button>
+        </div>
+        
+        <div class="strength-meter">
+            <div id="progress"></div>
+        </div>
+        <p id="status">Strength: Empty</p>
+
+        <button class="gen-btn" onclick="generatePass()">Generate Strong Password</button>
+    </div>
+
+    <script>
+        function checkStrength() {
+            let pwd = document.getElementById('password').value;
+            let prog = document.getElementById('progress');
+            let status = document.getElementById('status');
+            let score = 0;
+
+            if(pwd.length > 8) score++;
+            if(/[A-Z]/.test(pwd)) score++;
+            if(/[0-9]/.test(pwd)) score++;
+            if(/[^A-Za-z0-9]/.test(pwd)) score++;
+
+            let widths = ['0%', '25%', '50%', '75%', '100%'];
+            let colors = ['#ddd', '#ff4d4d', '#ffa64d', '#4d94ff', '#2ecc71'];
+            
+            prog.style.width = widths[score];
+            prog.style.backgroundColor = colors[score];
+            status.innerText = "Strength Score: " + score + "/4";
+        }
+
+        async function generatePass() {
+            const response = await fetch('/generate');
+            const data = await response.json();
+            document.getElementById('password').value = data.password;
+            checkStrength();
+        }
+
+        function copyPass() {
+            let copyText = document.getElementById("password");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Password Copied!");
+        }
+    </script>
+</body>
+</html>
